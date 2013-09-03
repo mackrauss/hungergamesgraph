@@ -335,6 +335,31 @@
 						.attr("y", function(d, i) {
 							return yScale(i) +yScale.rangeBand() /2 +4;
 					});
+
+
+					// resort the graph data as well
+					var resortedData = dataset.sort(function(a, b){
+						return d3.ascending(a.values[0], b.values[0])
+					});
+
+					var yAxisLabel = d3.scale.ordinal()
+	    				.domain(resortedData.map(function(d){
+	    					return d.name;
+	    				}))
+	    				.rangeRoundBands([padding, h - padding], 0.05);
+
+			
+					var yAxisNew = d3.svg.axis()
+						.scale(yAxisLabel)
+						.orient("left");
+
+					svg.select(".y.axis")
+    					.transition()
+    					.duration(1600)
+    					.call(yAxisNew);
+
+
+
 				});
 
 			d3.select("#richPatch")
