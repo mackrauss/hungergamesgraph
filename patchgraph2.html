@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Hunger Games Patch Graph</title>
+		<script type="text/javascript" src="js/d3.v3.js"></script>
+		<style type="text/css">
+
+			.axis path,
+			.axis line {
+				fill: none;
+				stroke: black;
+				shape-rendering: crispEdges;
+			}
+			
+			.axis text {
+				font-family: sans-serif;
+				font-size: 11px;
+			}
+
+			.icon {
+				height: 30px;
+				width: 30px;
+				
+			}
+
+			rect:hover {
+				fill: grey;
+			}
+
+			#tooltip {
+		        position: absolute;
+		        width: auto;
+		        height: auto;
+		        padding: 10px;
+		        background-color: white;
+		        -webkit-border-radius: 10px;
+		        -moz-border-radius: 10px;
+		        border-radius: 10px;
+		        -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+		        -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+		        box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+		        pointer-events: none;
+			}
+
+			#tooltip.hidden {
+		        display: none;
+			}
+
+			#tooltip p {
+			        margin: 0;
+			        font-family: sans-serif;
+			        font-size: 16px;
+			        line-height: 20px;
+			}
+
+			.bgcolor {
+				pointer-events:none;
+				border: solid 2px black;
+			}
+
+			#graph {
+				height: 300px;
+				border: solid 1px black;
+			}
+
+		</style>
+
+		
+	</head>
+	<body>
+		<div id="tooltip" class="hidden">
+			<p><strong>Student Name: <span id="studentName">Name</span></strong></p>
+			<p><span id="strat">100</span><p/>
+			<img id="graph"></img>
+		</div>
+
+		<button type="button" id="yield">Click to sort by yield</button>
+
+		<button type="button" id="richPatch">Click to sort by Rich Patch Strategy</button>
+
+		<button type"button" id="patchMoves">Click to sort by number of patch moves</button>
+
+		<script type="text/javascript">
+
+			var w = 600;
+			var h = 450;
+			var padding = 30;
+
+			var dataset = [ {name: "Bob", values: [500, 2.5, 2, "My Strategy was lorum ipsum dolum"] },
+							{name: "Jim", values: [380, 2.8, 5, "My Strategy was lorum ipsum dolum"] },
+							{name: "Becs", values: [425, 1.4, 8, "My Strategy was lorum ipsum dolum"] },
+							{name: "Tom", values: [245, 0.8, 4, "My Strategy was lorum ipsum dolum"]},
+							{name: "Cres", values: [300, 3.4, 1, "My Strategy was lorum ipsum dolum"]},
+							{name: "Gugo", values: [475, 2.8, 0, "My Strategy was lorum ipsum dolum"]},
+							{name: "Mike", values: [200, 4.4, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Joel", values: [500, 2.4, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Tony", values: [270, 1.8, 2, "My Strategy was lorum ipsum dolum"]},
+							{name: "Armin", values: [340, 3.4, 4, "My Strategy was lorum ipsum dolum"]},
+							{name: "Colin", values: [375, 5, 2, "My Strategy was lorum ipsum dolum"]},
+							{name: "Alisa", values: [285, 2.4, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Kim", values: [240, 3.2, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Naxin", values: [270, 4.5, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Brenda", values: [355, 2.6, 3, "My Strategy was lorum ipsum dolum"]},
+							{name: "Ani", values: [390, 3.3, 7, "My Strategy was lorum ipsum dolum"]},
+							{name: "Pearl", values: [325, 4.4, 6, "My Strategy was lorum ipsum dolum"]},
+							{name: "Paulo", values: [175, 2.5, 7, "My Strategy was lorum ipsum dolum"]},
+						];
+			
+			// var backgroundScale = d3.scale.ordinal()
+			// 				.domain(d3.range(dataset.length))
+			// 				.rangeRoundBands([padding, w - padding*2]);
+
+			var xScale = d3.scale.ordinal()
+							.domain(d3.range(dataset.length))
+							.rangeRoundBands([padding, w - padding*2], 0.05);
+			var yScale = d3.scale.linear()
+							.domain([0, d3.max(dataset, function(d){
+								return d.values[0]; })])
+							.range([padding, h - (padding*2)]);
+
+		    var xAxisLabel = d3.scale.ordinal()
+		    				.domain(["Low", "Middle", "High"])
+		    				.rangeRoundBands([padding, w - padding*2], 0.05);
+
+			var yAxisLabel = d3.scale.linear()
+							.domain([0, d3.max(dataset, function(d){
+								return d.values[0]; })])
+							.range([h-padding, padding]);
+
+			var xAxis = d3.svg.axis()
+							.scale(xAxisLabel)
+							.orient("bottom")
+						    .ticks(3);
+			
+			var yAxis = d3.svg.axis()
+							  .scale(yAxisLabel)
+							  .orient("left");
+							  // .ticks(5);
+		
+			
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
+
+			// var zone1 = svg.append("rect")
+			// 				.attr("class", "bgcolor")
+			// 				.attr("x", 0 + padding)
+			// 				.attr("y", 0)
+			// 				.attr("width", xScale([5])-3)
+			// 				.attr("height", h  -padding)
+			// 				.attr("fill", "rgba(208, 208, 208, 0.65)");
+
+			// var zone2 = svg.append("rect")
+			// 				.attr("class", "bgcolor")
+			// 				.attr("x", xScale([5]) + padding -3)
+			// 				.attr("y", 0)
+			// 				.attr("width", xScale([5])-6)
+			// 				.attr("height", h  -padding)
+			// 				.attr("fill", "rgba(160, 160, 160, 0.65)");						
+
+			// var zone3 = svg.append("rect")
+			// 				.attr("class", "bgcolor")
+			// 				.attr("x", xScale([11]) + padding -3)
+			// 				.attr("y", 0)
+			// 				.attr("width", xScale([5])-6)
+			// 				.attr("height", h  -padding)
+			// 				.attr("fill", "rgba(135, 135, 135, 0.65)");
+
+			svg.selectAll("rect")
+				.data(dataset)
+				.enter()
+				.append("rect")
+				.attr("x", function(d, i){
+					return xScale(i);
+				})
+				.attr("y", function(d) {
+					return h - yScale(d.values[0]) -padding;
+				})
+				.attr("width", xScale.rangeBand())
+				.attr("height", function(d) {
+					return yScale(d.values[0]);
+				})
+				.attr("fill", function(d){
+					if (d.values[0] <= 275){
+						return "red";
+					} else if (d.values[0] <= 375 ) {
+						return "yellow";
+					} else if (d.values[0] > 376) {
+						return "green";
+					}
+				})
+				// .append("title")
+				// .text(function(d){
+				// 	return d.name +": " +d.values[3];
+				// })
+				.on("mouseover", function(d){
+					
+					var xPosition = parseFloat(d3.select(this).attr("x")) + xScale.rangeBand() /2
+					var yPosition = parseFloat(d3.select(this).attr("y")) /2 + h /2;
+
+					d3.select("#tooltip")
+						.style("left", xPosition +"px")
+						.style("top", yPosition +"px")
+						.select("#strat")
+						.text(d.values[3]);
+						
+					d3.select("#tooltip")
+						.select("#graph")
+						.attr("src", "img/cpg.jpg");
+						
+					d3.select("#tooltip")
+						.select("#studentName")
+						.text(d.name);
+
+					d3.select("#tooltip").classed("hidden", false);
+				})
+
+				.on("mouseout", function() {
+					d3.select("#tooltip").classed("hidden", true);
+				});
+
+
+			//Create X axis
+			svg.append("g")
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + (h - padding) + ")")
+				.call(xAxis);
+			
+			//Create Y axis
+			svg.append("g")
+				.attr("class", "y axis")
+				.attr("transform", "translate(" + padding + ",0)")
+				.call(yAxis);
+
+			d3.select("#yield")
+				.on("click", function(){
+					svg.selectAll("rect")
+						.sort(function(a, b){
+							return d3.ascending(a.values[0], b.values[0])
+						})
+						.transition()
+						.delay(function(d, i){
+							return i *50;
+						})
+						.duration(1000)
+						.attr("x", function(d, i) {
+							return xScale(i)
+						});
+				});
+
+			d3.select("#richPatch")
+				.on("click", function(){
+					svg.selectAll("rect")
+						.sort(function(a, b){
+							return d3.ascending(a.values[1], b.values[1])
+						})
+						.transition()
+						.delay(function(d, i){
+							return i *50;
+						})
+						.duration(1000)
+						.attr("x", function(d, i) {
+							return xScale(i)
+						});
+				
+				});
+
+			d3.select("#patchMoves")
+				.on("click", function(){
+					svg.selectAll("rect")
+						.sort(function(a, b){
+							return d3.ascending(a.values[2], b.values[2])
+						})
+						.transition()
+						.delay(function(d, i){
+							return i *50;
+						})
+						.duration(1000)
+						.attr("x", function(d, i) {
+							return xScale(i)
+						});
+				
+				});
+
+			
+		</script>
+
+		
+		<div>
+			<img class="icon" src="img/fattening.jpeg"> Fattening</img>
+			<img class="icon" src="img/surviving.jpg"> Surviving</img>
+			<img class="icon" src="img/starving.png"> Starving</img>
+		</div>
+	</body>
+</html>
