@@ -1,6 +1,7 @@
 
 (function() {
   "use strict";
+  var Patchgraph = this.Patchgraph || {};
 
   var w = 650;
   var h = 600;
@@ -37,6 +38,7 @@
 
   var svg = d3.select("body")
               .append("svg")
+              .attr("class", "patchgraph")
               .attr("width", w)
               .attr("height", h)
 
@@ -63,7 +65,6 @@
                     .scale(yAxisLabelNames)
                     .orient("left");
                                   
-
   svg.append("rect")
     .attr("y", padding)
     .attr("x", padding)
@@ -194,6 +195,11 @@
 
 
   d3.select("#yield").on("click", function(){
+    // resort the graph data as well
+    var sortedData = dataset.sort(function(a, b){
+      return d3.ascending(a.values[0], b.values[0])
+    });
+
     svg.selectAll("rect.bars")
       .sort(function(a, b){
           return d3.ascending(a.values[0], b.values[0])
@@ -219,13 +225,9 @@
       .attr("text-anchor", "middle")
       .attr("y", function(d, i) {
         return yScale(i) +yScale.rangeBand() /2 +4;
-    });
+      });
 
-    // resort the graph data as well
-    var sortedData = dataset.sort(function(a, b){
-      return d3.ascending(a.values[0], b.values[0])
-    });
-
+    // changeGraph(sortedData);
     changeYaxis(sortedData);
   });
 
@@ -350,6 +352,24 @@
     .attr("transform", "translate(" + padding + ",0)")
     .call(yAxis);
 
+  // var changeGraph = function (sortedData) {
+  //   svg.selectAll("rect")
+  //       .data(sortedData)
+  //     .transition()
+  //       .duration(1000)
+  //       .attr("y", function(d, i) {
+  //           return yScale(i)
+  //       });
+
+  //     svg.selectAll(".labels")
+  //         .data(sortedData)
+  //       .transition()
+  //         .duration(1000)
+  //         .attr("text-anchor", "middle")
+  //         .attr("y", function(d, i) {
+  //           return yScale(i) +yScale.rangeBand() /2 +4;
+  //         });
+  // };
 
   var changeYaxis = function (sortedData) {
     var yAxisLabel = d3.scale.ordinal()
@@ -368,5 +388,8 @@
       .duration(1600)
       .call(yAxisNew);
   };
+
+  Patchgraph.svg = svg;
+  return this.Patchgraph = Patchgraph;
 
 }).call(this);
