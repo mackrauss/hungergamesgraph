@@ -1,7 +1,6 @@
 
 (function() {
   "use strict";
-  var app = this || {};
 
   var w = 650;
   var h = 600;
@@ -194,86 +193,77 @@
     .attr("class", "labels")
 
 
-  d3.select("#yield")
-    .on("click", function(){
-      svg.selectAll("rect.bars")
-        .sort(function(a, b){
-            return d3.ascending(a.values[0], b.values[0])
-        })
-        .transition()
-        .delay(function(d, i){
-            return i *50;
-        })
-        .duration(1000)
-        .attr("y", function(d, i) {
-            return yScale(i)
-        });
-
-      svg.selectAll(".labels")
-        .sort(function(a, b){
-            return d3.ascending(a.values[0], b.values[0])
-        })
-        .transition()
-        .delay(function(d, i){
-            return i * 50;
-        })
-        .duration(1000)
-        .attr("text-anchor", "middle")
-        .attr("y", function(d, i) {
-          return yScale(i) +yScale.rangeBand() /2 +4;
-      });
-
-      // resort the graph data as well
-      var resortedData = dataset.sort(function(a, b){
-        return d3.ascending(a.values[0], b.values[0])
-      });
-
-      var yAxisLabel = d3.scale.ordinal()
-        .domain(resortedData.map(function(d){
-            return d.name;
-        }))
-        .rangeRoundBands([padding, h - padding], 0.05);
-
-
-      var yAxisNew = d3.svg.axis()
-        .scale(yAxisLabel)
-        .orient("left");
-
-      svg.select(".y.axis")
-        .transition()
-        .duration(1600)
-        .call(yAxisNew);
-    });
-
-  d3.select("#richPatch")
-    .on("click", function(){
-      svg.selectAll("rect.bars")
-        .sort(function(a, b){
-          return d3.ascending(a.values[1], b.values[1])
-        })
-        .transition()
-        .delay(function(d, i){
-            return i *50;
-        })
-        .duration(1000)
-        .attr("y", function(d, i) {
+  d3.select("#yield").on("click", function(){
+    svg.selectAll("rect.bars")
+      .sort(function(a, b){
+          return d3.ascending(a.values[0], b.values[0])
+      })
+      .transition()
+      .delay(function(d, i){
+          return i *50;
+      })
+      .duration(1000)
+      .attr("y", function(d, i) {
           return yScale(i)
-        });
-
-      svg.selectAll(".labels")
-        .sort(function(a, b){
-          return d3.ascending(a.values[1], b.values[1])
-        })
-        .transition()
-        .delay(function(d, i){
-          return i * 50;
-        })
-        .duration(1000)
-        .attr("text-anchor", "middle")
-        .attr("y", function(d, i) {
-          return yScale(i) +yScale.rangeBand() /2 +4;
       });
+
+    svg.selectAll(".labels")
+      .sort(function(a, b){
+          return d3.ascending(a.values[0], b.values[0])
+      })
+      .transition()
+      .delay(function(d, i){
+          return i * 50;
+      })
+      .duration(1000)
+      .attr("text-anchor", "middle")
+      .attr("y", function(d, i) {
+        return yScale(i) +yScale.rangeBand() /2 +4;
     });
+
+    // resort the graph data as well
+    var sortedData = dataset.sort(function(a, b){
+      return d3.ascending(a.values[0], b.values[0])
+    });
+
+    changeYaxis(sortedData);
+  });
+
+  d3.select("#richPatch").on("click", function(){
+    svg.selectAll("rect.bars")
+      .sort(function(a, b){
+        return d3.ascending(a.values[1], b.values[1])
+      })
+      .transition()
+      .delay(function(d, i){
+          return i *50;
+      })
+      .duration(1000)
+      .attr("y", function(d, i) {
+        return yScale(i)
+      });
+
+    svg.selectAll(".labels")
+      .sort(function(a, b){
+        return d3.ascending(a.values[1], b.values[1])
+      })
+      .transition()
+      .delay(function(d, i){
+        return i * 50;
+      })
+      .duration(1000)
+      .attr("text-anchor", "middle")
+      .attr("y", function(d, i) {
+        return yScale(i) +yScale.rangeBand() /2 +4;
+    });
+
+    // resort the graph data
+    var sortedData = dataset.sort(function(a, b){
+      return d3.ascending(a.values[1], b.values[1])
+    });
+
+    changeYaxis(sortedData);
+  });
 
   d3.select("#patchMoves").on("click", function(){     
     svg.selectAll("rect.bars")
@@ -301,7 +291,14 @@
       .attr("text-anchor", "middle")
       .attr("y", function(d, i) {
         return yScale(i) +yScale.rangeBand() /2 +4;
-    });    
+    });
+
+    // resort the graph data
+    var sortedData = dataset.sort(function(a, b){
+      return d3.ascending(a.values[2], b.values[2])
+    });
+
+    changeYaxis(sortedData); 
   });
 
   d3.select("#patchCompetition").on("click", function(){
@@ -332,7 +329,13 @@
          return yScale(i) +yScale.rangeBand() /2 +4;
     });
 
-    svg.select(".y").call(yAxis);
+    // svg.select(".y").call(yAxis);
+    // resort the graph data
+    var sortedData = dataset.sort(function(a, b){
+      return d3.ascending(a.values[4], b.values[4])
+    });
+
+    changeYaxis(sortedData);
   });
 
   //Create Y axis
@@ -347,5 +350,23 @@
     .attr("transform", "translate(" + padding + ",0)")
     .call(yAxis);
 
-  this.Washago = Washago;
+
+  var changeYaxis = function (sortedData) {
+    var yAxisLabel = d3.scale.ordinal()
+      .domain(sortedData.map(function(d){
+          return d.name;
+      }))
+      .rangeRoundBands([padding, h - padding], 0.05);
+
+
+    var yAxisNew = d3.svg.axis()
+      .scale(yAxisLabel)
+      .orient("left");
+
+    svg.select(".y.axis")
+      .transition()
+      .duration(1600)
+      .call(yAxisNew);
+  };
+
 }).call(this);
