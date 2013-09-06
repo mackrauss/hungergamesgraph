@@ -7,24 +7,25 @@
   var h = 600;
   var padding = 50;
 
+  //                                    yield, avg? patch ritchness, patch moves?, strategy note, patch competition
   var dataset = [ {name: "Bob", values: [500, 2.5, 2, "My Strategy was lorum ipsum dolum", 0] },
-                  {name: "Jim", values: [380, 2.8, 5, "My Strategy was lorum ipsum dolum", 1] },
-                  {name: "Becs", values: [425, 1.4, 8, "My Strategy was lorum ipsum dolum", 2] },
-                  {name: "Tom", values: [245, 0.8, 4, "My Strategy was lorum ipsum dolum", 3]},
-                  {name: "Cres", values: [300, 3.4, 1, "My Strategy was lorum ipsum dolum", 4]},
-                  {name: "Gugo", values: [475, 2.8, 0, "My Strategy was lorum ipsum dolum", 5]},
-                  {name: "Mike", values: [200, 4.4, 3, "My Strategy was lorum ipsum dolum", 6]},
-                  {name: "Joel", values: [500, 2.4, 3, "My Strategy was lorum ipsum dolum", 7]},
-                  {name: "Tony", values: [270, 1.8, 2, "My Strategy was lorum ipsum dolum", 8]},
-                  {name: "Armin", values: [340, 3.4, 4, "My Strategy was lorum ipsum dolum", 9]},
-                  {name: "Colin", values: [375, 5, 2, "My Strategy was lorum ipsum dolum", 10]},
-                  {name: "Alisa", values: [285, 2.4, 3, "My Strategy was lorum ipsum dolum", 11]},
-                  {name: "Kim", values: [240, 3.2, 3, "My Strategy was lorum ipsum dolum", 12]},
-                  {name: "Naxin", values: [270, 4.5, 3, "My Strategy was lorum ipsum dolum", 13]},
-                  {name: "Brenda", values: [355, 2.6, 3, "My Strategy was lorum ipsum dolum", 14]},
-                  {name: "Ani", values: [390, 3.3, 7, "My Strategy was lorum ipsum dolum", 15]},
-                  {name: "Pearl", values: [325, 4.4, 6, "My Strategy was lorum ipsum dolum", 16]},
-                  {name: "Paulo", values: [175, 2.5, 7, "My Strategy was lorum ipsum dolum", 17]},
+                  {name: "Jim", values: [380, 2.8, 5, "My Strategy was lorum ipsum dolum", 1], "color": {"r": 75, "g": 10, "b": 22} },
+                  {name: "Becs", values: [425, 1.4, 8, "My Strategy was lorum ipsum dolum", 2], "color": {"r": 75, "g": 70, "b": 1} },
+                  {name: "Tom", values: [245, 0.8, 4, "My Strategy was lorum ipsum dolum", 3], "color": {"r": 85, "g": 45, "b": 30}},
+                  {name: "Cres", values: [300, 3.4, 1, "My Strategy was lorum ipsum dolum", 4], "color": {"r": 25, "g": 55, "b": 66}},
+                  {name: "Gugo", values: [475, 2.8, 0, "My Strategy was lorum ipsum dolum", 5], "color": {"r": 0, "g": 255, "b": 10}},
+                  {name: "Mike", values: [200, 4.4, 3, "My Strategy was lorum ipsum dolum", 6], "color": {"r": 0, "g": 255, "b": 10}},
+                  {name: "Joel", values: [500, 2.4, 3, "My Strategy was lorum ipsum dolum", 7], "color": {"r": 88, "g": 10, "b": 75}},
+                  {name: "Tony", values: [270, 1.8, 2, "My Strategy was lorum ipsum dolum", 8], "color": {"r": 5, "g": 10, "b": 66}},
+                  {name: "Armin", values: [340, 3.4, 4, "My Strategy was lorum ipsum dolum", 9], "color": {"r": 200, "g": 10, "b": 0}},
+                  {name: "Colin", values: [375, 5, 2, "My Strategy was lorum ipsum dolum", 10], "color": {"r": 44, "g": 88, "b": 66}},
+                  {name: "Alisa", values: [285, 2.4, 3, "My Strategy was lorum ipsum dolum", 11], "color": {"r": 7, "g": 10, "b": 11}},
+                  {name: "Kim", values: [240, 3.2, 3, "My Strategy was lorum ipsum dolum", 12], "color": {"r": 255, "g": 0, "b": 255}},
+                  {name: "Naxin", values: [270, 4.5, 3, "My Strategy was lorum ipsum dolum", 13], "color": {"r": 40, "g": 75, "b": 33}},
+                  {name: "Brenda", values: [355, 2.6, 3, "My Strategy was lorum ipsum dolum", 14], "color": {"r": 10, "g": 10, "b": 44}},
+                  {name: "Ani", values: [390, 3.3, 7, "My Strategy was lorum ipsum dolum", 15], "color": {"r": 11, "g": 75, "b": 55}},
+                  {name: "Pearl", values: [325, 4.4, 6, "My Strategy was lorum ipsum dolum", 16], "color": {"r": 22, "g": 20, "b": 66}},
+                  {name: "Paulo", values: [175, 2.5, 7, "My Strategy was lorum ipsum dolum", 17], "color": {"r": 255, "g": 255, "b": 0}},
               ];
 
   var xScale = d3.scale.linear()
@@ -130,11 +131,17 @@
     })
     .attr("height", yScale.rangeBand())
     .attr("fill", function(d) {
-        if (d.name == "Mike") {
-            return "gold";
-        } else {
-            return "rgba(75, 75, 75, .7)";
-        }
+      if (d.color) {
+        var color = "rgba(";
+        color += d.color.r +", ";
+        color += d.color.g +", ";
+        color += d.color.b +", ";
+        color += ".7)";
+
+        return color;
+      } else {
+        return "rgba(75, 75, 75, 1)";
+      }
     })
     .attr("stroke-width", 1)
     .attr("stroke", "rgb(0,0,0)")
@@ -168,6 +175,26 @@
         d3.select("#tooltip").classed("hidden", true);
     });
 
+  svg.selectAll("text.name")
+    .data(dataset)
+    .enter()
+    .append("text")
+    .text(function(d) {
+        return d.name;
+    })
+    .attr("text-anchor", "middle")
+    .attr("y", function(d, i) {
+      return yScale(i) + yScale.rangeBand() /2 +4;
+    })
+    .attr("x", function(d) {
+      return 80;
+    })
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "12px")
+    .attr("fill", "white")
+    .attr("class", "name-labels")
+
+ 
   svg.selectAll("text.values")
     .data(dataset)
     .enter()
@@ -177,19 +204,19 @@
     })
     .attr("text-anchor", "middle")
     .attr("y", function(d, i) {
-        return yScale(i) + yScale.rangeBand() /2 +4;
+      return yScale(i) + yScale.rangeBand() /2 +4;
     })
     .attr("x", function(d) {
-        return xScale(d.values[0]) +65;
+      return xScale(d.values[0]) +65;
     })
     .attr("font-family", "sans-serif")
     .attr("font-size", "12px")
     .attr("fill", function(d, i){
-        if (i%2 == 0){
-            return "blue"
-        } else {
-            return "red"
-        };
+      if (i%2 == 0){
+        return "blue"
+      } else {
+        return "red"
+      };
     })
     .attr("class", "labels")
 
@@ -202,15 +229,15 @@
 
     svg.selectAll("rect.bars")
       .sort(function(a, b){
-          return d3.ascending(a.values[0], b.values[0])
+        return d3.ascending(a.values[0], b.values[0])
       })
       .transition()
       .delay(function(d, i){
-          return i *50;
+        return i *50;
       })
       .duration(1000)
       .attr("y", function(d, i) {
-          return yScale(i)
+        return yScale(i)
       });
 
     svg.selectAll(".labels")
@@ -219,13 +246,15 @@
       })
       .transition()
       .delay(function(d, i){
-          return i * 50;
+        return i * 50;
       })
       .duration(1000)
       .attr("text-anchor", "middle")
       .attr("y", function(d, i) {
         return yScale(i) +yScale.rangeBand() /2 +4;
       });
+
+    sortLabelNames(0);
 
     // changeGraph(sortedData);
     changeYaxis(sortedData);
@@ -238,7 +267,7 @@
       })
       .transition()
       .delay(function(d, i){
-          return i *50;
+        return i *50;
       })
       .duration(1000)
       .attr("y", function(d, i) {
@@ -258,6 +287,8 @@
       .attr("y", function(d, i) {
         return yScale(i) +yScale.rangeBand() /2 +4;
     });
+
+    sortLabelNames(1);
 
     // resort the graph data
     var sortedData = dataset.sort(function(a, b){
@@ -295,6 +326,8 @@
         return yScale(i) +yScale.rangeBand() /2 +4;
     });
 
+    sortLabelNames(2);
+
     // resort the graph data
     var sortedData = dataset.sort(function(a, b){
       return d3.ascending(a.values[2], b.values[2])
@@ -319,7 +352,7 @@
 
     svg.selectAll(".labels")
       .sort(function(a, b){
-         return d3.ascending(a.values[4], b.values[4])
+       return d3.ascending(a.values[4], b.values[4])
       })
       .transition()
       .delay(function(d, i){
@@ -328,8 +361,10 @@
       .duration(1000)
       .attr("text-anchor", "middle")
       .attr("y", function(d, i) {
-         return yScale(i) +yScale.rangeBand() /2 +4;
+       return yScale(i) +yScale.rangeBand() /2 +4;
     });
+
+    sortLabelNames(4);
 
     // svg.select(".y").call(yAxis);
     // resort the graph data
@@ -351,6 +386,22 @@
     .attr("class", "y axis")
     .attr("transform", "translate(" + padding + ",0)")
     .call(yAxis);
+
+  var sortLabelNames = function (dataIndex) {
+    svg.selectAll(".name-labels")
+      .sort(function(a, b){
+          return d3.ascending(a.values[dataIndex], b.values[dataIndex])
+      })
+      .transition()
+      .delay(function(d, i){
+        return i * 50;
+      })
+      .duration(1000)
+      .attr("text-anchor", "middle")
+      .attr("y", function(d, i) {
+        return yScale(i) +yScale.rangeBand() /2 +4;
+      });
+  };
 
   // var changeGraph = function (sortedData) {
   //   svg.selectAll("rect")
