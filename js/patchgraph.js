@@ -257,7 +257,7 @@
     sortLabelNames(0);
 
     // changeGraph(sortedData);
-    changeYaxis(sortedData);
+    changeYaxis(sortedData, 0);
   });
 
   d3.select("#richPatch").on("click", function(){
@@ -295,7 +295,7 @@
       return d3.ascending(a.values[1], b.values[1])
     });
 
-    changeYaxis(sortedData);
+    changeYaxis(sortedData, 1);
   });
 
   d3.select("#patchMoves").on("click", function(){     
@@ -333,7 +333,7 @@
       return d3.ascending(a.values[2], b.values[2])
     });
 
-    changeYaxis(sortedData); 
+    changeYaxis(sortedData, 2); 
   });
 
   d3.select("#patchCompetition").on("click", function(){
@@ -372,7 +372,7 @@
       return d3.ascending(a.values[4], b.values[4])
     });
 
-    changeYaxis(sortedData);
+    changeYaxis(sortedData, 4);
   });
 
   //Create Y axis
@@ -422,10 +422,14 @@
   //         });
   // };
 
-  var changeYaxis = function (sortedData) {
+  /* This function rearranges the y Axis. If you return d.name in the map function
+     it will show the names of each student. However I am showing the data range we
+     sorted with. This doesn't work quit yet and I might need some help to figure
+     this out */
+  var changeYaxis = function (sortedData, dataIndex) {
     var yAxisLabel = d3.scale.ordinal()
       .domain(sortedData.map(function(d){
-          return d.name;
+          return d.values[dataIndex];
       }))
       .rangeRoundBands([padding, h - padding], 0.05);
 
